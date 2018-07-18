@@ -1,6 +1,7 @@
 attachments
 client_secret.json
 credentials.json
+service_account.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
