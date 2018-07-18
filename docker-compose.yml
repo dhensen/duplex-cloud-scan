@@ -1,0 +1,7 @@
+version: '3'
+services:
+  duplex-cloud-scan:
+    image: duplex-cloud-scan
+    build: .
+    volumes:
+      - .:/app

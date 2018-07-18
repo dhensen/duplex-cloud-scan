@@ -1,4 +1,5 @@
 FROM python:3.6.6-stretch
+LABEL maintainer="Dino Hensen <dino.hensen@gmail.com>"
 RUN mkdir -p /app
 COPY requirements /app/requirements
 RUN pip3 install -r /app/requirements/requirements.txt && ls /app
