@@ -96,4 +96,5 @@ if __name__ == '__main__':
     gmail = get_gmail_service()
     subscriber = get_subscriber()
     setup_subscription(subscriber)
+    print('starting')
     start_pulling(gmail, subscriber, start_history_id=res['historyId'])
