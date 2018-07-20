@@ -30,7 +30,7 @@ def get_gmail_service():
         flow = client.flow_from_clientsecrets('client_secret.json', SCOPES)
         # dont runt this one when we are not interactive
         creds = tools.run_flow(flow, store)
-    gmail_service = build('gmail', 'v1', http=creds.authorize(Http()))
+    gmail_service = build('gmail', 'v1', http=creds.authorize(Http()), cache_discovery=False)
     return gmail_service
 
 
