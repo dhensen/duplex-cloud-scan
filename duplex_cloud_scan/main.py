@@ -20,8 +20,11 @@ if __name__ == '__main__':
     #     msg_id='1647dbf1a7d7b986',
     #     store_dir='attachments/')
     res = start_watch(service)
-    gmail = get_gmail_service()
+
+    # First initializing subscribed and then gmail solves weird
+    # SSL:DECRYPTION_FAILED_OR_BAD_RECORD_MAC issue
     subscriber = get_subscriber()
+    gmail = get_gmail_service()
     setup_subscription(subscriber)
     print('starting')
     start_pulling(gmail, subscriber, start_history_id=res['historyId'])

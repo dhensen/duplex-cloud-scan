@@ -5,3 +5,7 @@ services:
     build: .
     volumes:
       - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GOOGLE_CLOUD_PROJECT=api-project-175925620434
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/service_account.json

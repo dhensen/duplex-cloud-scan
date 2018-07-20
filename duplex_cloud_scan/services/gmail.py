@@ -1,7 +1,6 @@
 import base64
-import logging
+from logger import get_logger
 import os
-from pprint import pprint
 
 from apiclient import errors
 from apiclient.discovery import build
@@ -10,8 +9,7 @@ from oauth2client import client, file, tools
 
 from settings import TOPIC_NAME, WATCH_LABELS
 
-# logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 gmail_service = None
 
@@ -59,25 +57,23 @@ def example_labels():
     results = service.users().labels().list(userId='me').execute()
     labels = results.get('labels', [])
     if not labels:
-        print('No labels found.')
+        logger.info('No labels found.')
     else:
-        print('Labels:')
+        logger.info('Labels:')
         for label in labels:
-            # print(label['name'])
             if 'scan' in label['name']:
-                print(label)
+                logger.info(label)
 
 
 def example_mails():
     results = service.users().messages().list(
         userId='me', labelIds=['Label_4339693487728562381']).execute()
-
-    pprint(results)
+    logger.info(results)
 
 
 def get_email(id):
     results = service.users().messages().get(userId='me', id=id).execute()
-    pprint(results)
+    logger.info(results)
 
 
 def get_attachments(service, user_id, msg_id, store_dir):
@@ -97,7 +93,6 @@ def get_attachments(service, user_id, msg_id, store_dir):
 
         for part in message['payload']['parts']:
             if part['filename']:
-                pprint(part)
                 base64_data = None
                 if 'data' in part['body']:
                     base64_data = part['body']['data']
@@ -115,7 +110,7 @@ def get_attachments(service, user_id, msg_id, store_dir):
                 f.close()
                 attachments.append(path)
     except errors.HttpError as error:
-        print('An error occurred: {}'.format(error))
+        logger.error('An error occurred: {}'.format(error))
     return attachments
 
 
