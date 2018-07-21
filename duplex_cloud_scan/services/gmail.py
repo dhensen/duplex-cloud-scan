@@ -99,6 +99,7 @@ def get_attachments(service, user_id, msg_id, store_dir):
 
         for part in message['payload']['parts']:
             if part['filename']:
+                logger.debug('part.filename: {}'.format(part['filename']))
                 base64_data = None
                 if 'data' in part['body']:
                     base64_data = part['body']['data']

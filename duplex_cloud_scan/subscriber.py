@@ -11,7 +11,7 @@ from combine_pdf import combine_two_pdfs
 
 logger = get_logger(__name__)
 
-sub_name = 'projects/{project}/subscriptions/{subscription}'.format(
+subscription_name = 'projects/{project}/subscriptions/{subscription}'.format(
     project=PROJECT_ID, subscription='gmail')
 
 last_known_history_id = 1
@@ -25,7 +25,7 @@ def get_subscriber():
 
 def setup_subscription(subscriber):
     try:
-        res = subscriber.create_subscription(sub_name, TOPIC_NAME)
+        res = subscriber.create_subscription(subscription_name, TOPIC_NAME)
         pprint(res)
     except AlreadyExists:
         pass
@@ -58,6 +58,13 @@ def process_pair(service):
 
 
 def process_message(gmail_service, message):
+    """
+    This calls history.list for an incoming message.data.historyId
+    Look if there is a messagesAdded key inside each history change
+    If there is look for the labelIds key and mark e-mails front or back
+    depending on the label attached to it.
+    Then if there is a front and a back message marked, process them.
+    """
     global last_known_history_id
     data = json.loads(message.data.decode('utf-8'))
     logger.info('nieuw bericht, historyId: {}'.format(data['historyId']))
@@ -90,17 +97,10 @@ def process_message(gmail_service, message):
         if back_pdf_message_ids and front_pdf_message_ids:
             process_pair(gmail_service)
     last_known_history_id = nextHistoryId
-    # history.list callen voor elke message.data.historyId
-    # die json processen:
-    # pak data op key messagesAdded
-    # kijk of labelIds je gewenste labels bevat
-    # zo ja: markeer message als front of  back
-    # als een back een front markering opvolt: merge pdfs
-    # daarna:
-    # OF lokaal opslaan in een map (dropbox bijv.)
-    # OF mail die naar jezelf via dino.hensen+scan_duplex@gmail.com of geef de mail een label DUPLEX_TARGET_LABEL
-    # OF upload scan naar dropbox via api
-    # OF upload scan naar gdrive via api
+    # [ ] lokaal opslaan in een map (dropbox bijv.)
+    # [ ] mail die naar jezelf via dino.hensen+scan_duplex@gmail.com of geef de mail een label DUPLEX_TARGET_LABEL
+    # [ ] upload scan naar dropbox via api
+    # [ ] upload scan naar gdrive via api
 
 
 def callback(gmail_service):
@@ -108,10 +108,11 @@ def callback(gmail_service):
         logger.info('START CALLBACK')
         try:
             process_message(gmail_service, message)
+            message.ack()
         except Exception as e:
+            message.nack()
             logger.error('error while processing message {}'.format(message))
             raise e
-        message.ack()
         logger.info('END CALLBACK')
 
     return inner
@@ -121,7 +122,7 @@ def start_pulling(gmail_service, subscriber, start_history_id=1):
     global last_known_history_id
     last_known_history_id = int(start_history_id)
     logger.info('before subscriber.subscribe()')
-    future = subscriber.subscribe(sub_name, callback(gmail_service))
+    future = subscriber.subscribe(subscription_name, callback(gmail_service))
     logger.info('before future.result()')
     try:
         future.result()

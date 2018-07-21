@@ -1,7 +1,12 @@
 from pdfrw import PdfReader, PdfWriter
+from logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def combine_two_pdfs(front, back, output_file):
+    logger.debug(front)
+    logger.debug(back)
     front_pages = PdfReader(front).pages
     back_pages = PdfReader(back).pages
     back_pages = reversed(back_pages)
