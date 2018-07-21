@@ -7,6 +7,7 @@ import json
 from settings import SCAN_FRONT_LABEL, SCAN_BACK_LABEL
 from logger import get_logger
 from os import makedirs
+from combine_pdf import combine_two_pdfs
 
 logger = get_logger(__name__)
 
@@ -47,6 +48,12 @@ def process_pair(service):
     front_attachments = get_attachments(service, 'me', front_msg_id,
                                         target_dir)
     back_attachments = get_attachments(service, 'me', back_msg_id, target_dir)
+
+    if len(front_attachments) == 1 and len(back_attachments) == 1:
+        combine_two_pdfs(
+            front_attachments[0],
+            back_attachments[0], 'example_pdfs/combined-{}-{}.pdf'.format(
+                front_msg_id, back_msg_id))
     # download front and back attachment
 
 

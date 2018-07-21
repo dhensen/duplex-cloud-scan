@@ -15,5 +15,6 @@ def combine_two_pdfs(front, back, output_file):
     writer.write()
 
 
-combine_two_pdfs('example_pdfs/front.pdf', 'example_pdfs/back.pdf',
-                 'example_pdfs/combined.pdf')
+if __name__ == '__main__':
+    combine_two_pdfs('example_pdfs/front.pdf', 'example_pdfs/back.pdf',
+                     'example_pdfs/combined.pdf')
