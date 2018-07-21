@@ -16,4 +16,4 @@ def combine_two_pdfs(front, back, output_file):
 
 
 combine_two_pdfs('example_pdfs/front.pdf', 'example_pdfs/back.pdf',
-                 'combined.pdf')
+                 'example_pdfs/combined.pdf')
