@@ -50,7 +50,7 @@ def gmail_history_list(service, user_id, start_history_id):
             pageToken=page_token).execute())
         changes.extend(history['history'])
 
-    return history['historyId'], changes
+    return int(history['historyId']), changes
 
 
 def start_watch(service):

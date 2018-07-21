@@ -18,6 +18,7 @@ grpcio==1.13.0            # via google-api-core, googleapis-common-protos, grpc-
 httplib2==0.11.3          # via google-api-python-client, google-auth-httplib2, oauth2client
 idna==2.7                 # via requests
 oauth2client==4.1.2
+pdfrw==0.4
 protobuf==3.6.0           # via google-api-core, googleapis-common-protos
 pyasn1-modules==0.2.2     # via google-auth, oauth2client
 pyasn1==0.4.3             # via oauth2client, pyasn1-modules, rsa

@@ -6,6 +6,7 @@ from services.gmail import gmail_history_list, get_attachments
 import json
 from settings import SCAN_FRONT_LABEL, SCAN_BACK_LABEL
 from logger import get_logger
+from os import makedirs
 
 logger = get_logger(__name__)
 
@@ -41,11 +42,11 @@ def process_pair(service):
     front_msg_id = front_pdf_message_ids.pop()
     back_msg_id = back_pdf_message_ids.pop()
     logger.info('{} and {} belong together'.format(front_msg_id, back_msg_id))
-
+    target_dir = 'attachments/{}-{}'.format(front_msg_id, back_msg_id)
+    makedirs(target_dir, exist_ok=True)
     front_attachments = get_attachments(service, 'me', front_msg_id,
-                                        'attachments')
-    back_attachments = get_attachments(service, 'me', back_msg_id,
-                                       'attachments')
+                                        target_dir)
+    back_attachments = get_attachments(service, 'me', back_msg_id, target_dir)
     # download front and back attachment
 
 
@@ -53,14 +54,18 @@ def process_message(gmail_service, message):
     global last_known_history_id
     data = json.loads(message.data.decode('utf-8'))
     logger.info('nieuw bericht, historyId: {}'.format(data['historyId']))
-    # return
-    historyId, changes = gmail_history_list(
+
+    historyId = int(data['historyId'])
+    if historyId <= last_known_history_id:
+        logger.info('given historyId={} is smaller or equal to last known'
+                    'historyId={}, already up to date'.format(
+                        historyId, last_known_history_id))
+        return
+    nextHistoryId, changes = gmail_history_list(
         service=gmail_service,
         user_id='me',
         start_history_id=last_known_history_id)
-    if historyId <= last_known_history_id:
-        logger.info('given historyId is smaller or equal to last known'
-                    'historyId, already up to date')
+
     pprint(changes)
     for change in changes:
         if 'messagesAdded' in change:
@@ -77,7 +82,7 @@ def process_message(gmail_service, message):
                     _mark_back(message['id'])
         if back_pdf_message_ids and front_pdf_message_ids:
             process_pair(gmail_service)
-    last_known_history_id = historyId
+    last_known_history_id = nextHistoryId
     # history.list callen voor elke message.data.historyId
     # die json processen:
     # pak data op key messagesAdded
@@ -107,7 +112,7 @@ def callback(gmail_service):
 
 def start_pulling(gmail_service, subscriber, start_history_id=1):
     global last_known_history_id
-    last_known_history_id = start_history_id
+    last_known_history_id = int(start_history_id)
     logger.info('before subscriber.subscribe()')
     future = subscriber.subscribe(sub_name, callback(gmail_service))
     logger.info('before future.result()')
