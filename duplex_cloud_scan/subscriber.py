@@ -90,8 +90,10 @@ def process_message(gmail_service, message):
 
 def callback(gmail_service):
     def inner(message):
+        logger.info('START CALLBACK')
         process_message(gmail_service, message)
         message.ack()
+        logger.info('END CALLBACK')
 
     return inner
 
@@ -99,8 +101,9 @@ def callback(gmail_service):
 def start_pulling(gmail_service, subscriber, start_history_id=1):
     global last_known_history_id
     last_known_history_id = start_history_id
+    logger.info('before subscriber.subscribe()')
     future = subscriber.subscribe(sub_name, callback(gmail_service))
-
+    logger.info('before future.result()')
     try:
         future.result()
     except Exception as ex:
