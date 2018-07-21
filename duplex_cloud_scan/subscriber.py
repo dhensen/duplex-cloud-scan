@@ -2,7 +2,7 @@ from google.cloud import pubsub
 from settings import TOPIC_NAME, PROJECT_ID
 from google.api_core.exceptions import AlreadyExists
 from pprint import pprint
-from services.gmail import gmail_history_list
+from services.gmail import gmail_history_list, get_attachments
 import json
 from settings import SCAN_FRONT_LABEL, SCAN_BACK_LABEL
 from logger import get_logger
@@ -37,19 +37,22 @@ def _mark_back(message_id):
     back_pdf_message_ids.append(message_id)
 
 
-def process_pair():
-    front = front_pdf_message_ids.pop()
-    back = back_pdf_message_ids.pop()
-    print('{} and {} belong together'.format(front, back))
-    pprint(front_pdf_message_ids)
-    pprint(back_pdf_message_ids)
+def process_pair(service):
+    front_msg_id = front_pdf_message_ids.pop()
+    back_msg_id = back_pdf_message_ids.pop()
+    logger.info('{} and {} belong together'.format(front_msg_id, back_msg_id))
+
+    front_attachments = get_attachments(service, 'me', front_msg_id,
+                                        'attachments')
+    back_attachments = get_attachments(service, 'me', back_msg_id,
+                                       'attachments')
     # download front and back attachment
 
 
 def process_message(gmail_service, message):
     global last_known_history_id
     data = json.loads(message.data.decode('utf-8'))
-    print('nieuw bericht, historyId: {}'.format(data['historyId']))
+    logger.info('nieuw bericht, historyId: {}'.format(data['historyId']))
     # return
     historyId, changes = gmail_history_list(
         service=gmail_service,
@@ -73,7 +76,7 @@ def process_message(gmail_service, message):
                         message['id']))
                     _mark_back(message['id'])
         if back_pdf_message_ids and front_pdf_message_ids:
-            process_pair()
+            process_pair(gmail_service)
     last_known_history_id = historyId
     # history.list callen voor elke message.data.historyId
     # die json processen:
@@ -91,7 +94,11 @@ def process_message(gmail_service, message):
 def callback(gmail_service):
     def inner(message):
         logger.info('START CALLBACK')
-        process_message(gmail_service, message)
+        try:
+            process_message(gmail_service, message)
+        except Exception as e:
+            logger.error('error while processing message {}'.format(message))
+            raise e
         message.ack()
         logger.info('END CALLBACK')
 
@@ -106,5 +113,7 @@ def start_pulling(gmail_service, subscriber, start_history_id=1):
     logger.info('before future.result()')
     try:
         future.result()
+    except KeyboardInterrupt:
+        future.cancel()
     except Exception as ex:
         raise

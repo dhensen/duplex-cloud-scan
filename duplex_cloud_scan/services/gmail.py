@@ -11,24 +11,30 @@ from settings import TOPIC_NAME, WATCH_LABELS
 
 logger = get_logger(__name__)
 
+DEFAULT_SCOPES = [
+    'https://www.googleapis.com/auth/gmail.readonly',
+    'https://www.googleapis.com/auth/gmail.compose'
+]
 gmail_service = None
 
 
-def get_gmail_service():
+def get_gmail_service(scopes=None):
     global gmail_service
     if gmail_service:
         logger.info('return gmail service from inmemory cache')
         return gmail_service
 
     # Setup the Gmail API
-    SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
+    if not scopes:
+        scopes = DEFAULT_SCOPES
     store = file.Storage('credentials.json')
     creds = store.get()
     if not creds or creds.invalid:
-        flow = client.flow_from_clientsecrets('client_secret.json', SCOPES)
+        flow = client.flow_from_clientsecrets('client_secret.json', scopes)
         # dont runt this one when we are not interactive
         creds = tools.run_flow(flow, store)
-    gmail_service = build('gmail', 'v1', http=creds.authorize(Http()), cache_discovery=False)
+    gmail_service = build(
+        'gmail', 'v1', http=creds.authorize(Http()), cache_discovery=False)
     return gmail_service
 
 
