@@ -1,13 +1,14 @@
-from google.cloud import pubsub
-from settings import TOPIC_NAME, PROJECT_ID
-from google.api_core.exceptions import AlreadyExists
-from pprint import pprint
-from services.gmail import gmail_history_list, get_attachments
 import json
-from settings import SCAN_FRONT_LABEL, SCAN_BACK_LABEL
-from logger import get_logger
 from os import makedirs
+from pprint import pprint
+
+from google.api_core.exceptions import AlreadyExists
+from google.cloud import pubsub
+
 from combine_pdf import combine_two_pdfs
+from logger import get_logger
+from services.gmail import get_attachments, gmail_history_list
+from settings import PROJECT_ID, SCAN_BACK_LABEL, SCAN_FRONT_LABEL, TOPIC_NAME
 
 logger = get_logger(__name__)
 

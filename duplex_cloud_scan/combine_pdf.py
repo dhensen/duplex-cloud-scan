@@ -1,4 +1,5 @@
 from pdfrw import PdfReader, PdfWriter
+
 from logger import get_logger
 
 logger = get_logger(__name__)
