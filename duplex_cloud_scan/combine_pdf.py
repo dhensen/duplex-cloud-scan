@@ -1,6 +1,6 @@
 from pdfrw import PdfReader, PdfWriter
 
-from logger import get_logger
+from duplex_cloud_scan.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -15,10 +15,10 @@ def combine_two_pdfs(front, back, output_file):
     combined[::2] = front_pages
     combined[1::2] = back_pages
 
-    writer = PdfWriter(output_file)
+    writer = PdfWriter()
     for page in combined:
         writer.addpage(page)
-    writer.write()
+    writer.write(fname=output_file)
 
 
 if __name__ == '__main__':

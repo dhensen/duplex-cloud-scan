@@ -6,8 +6,8 @@ from apiclient.discovery import build
 from httplib2 import Http
 from oauth2client import client, file, tools
 
-from logger import get_logger
-from settings import TOPIC_NAME, WATCH_LABELS
+from ..logger import get_logger
+from ..settings import TOPIC_NAME, WATCH_LABELS
 
 logger = get_logger(__name__)
 

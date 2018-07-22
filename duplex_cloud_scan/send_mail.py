@@ -105,7 +105,7 @@ def create_message_with_attachment(sender, to, subject, message_text, file_dir,
 
 
 def main():
-    from services.gmail import get_gmail_service
+    from .services.gmail import get_gmail_service
     # this script only needs compose scope, but then I have to manage two sets of credentials
     # in dev which I'm not going to do right now
     # scopes = ['https://www.googleapis.com/auth/gmail.compose']

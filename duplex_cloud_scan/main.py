@@ -5,8 +5,8 @@ Leverage your cloud enabled scanner to create a duplex scanning functionality
 through the Google Gmail API and Google Pub/Sub API
 """
 
-from services.gmail import get_gmail_service, start_watch
-from subscriber import get_subscriber, setup_subscription, start_pulling
+from duplex_cloud_scan.services.gmail import get_gmail_service, start_watch
+from duplex_cloud_scan.subscriber import get_subscriber, setup_subscription, start_pulling
 
 service = get_gmail_service()
 

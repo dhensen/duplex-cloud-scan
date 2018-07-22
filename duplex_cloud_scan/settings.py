@@ -11,3 +11,9 @@ PROJECT_ID = os.environ['GOOGLE_CLOUD_PROJECT']
 
 # dont use PROJECT_ID substitution in this variable, they could be on separate projects
 TOPIC_NAME = 'projects/api-project-175925620434/topics/cloud-duplex'
+
+# Processor settings
+
+# Filesystem processor
+FS_TARGET_DIR = 'combined_pdfs'
+FS_FILENAME_FORMAT = '%d-%m-%Y_%H.%I.%S'
