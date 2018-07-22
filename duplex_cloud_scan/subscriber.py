@@ -24,6 +24,10 @@ def get_subscriber():
     return pubsub.SubscriberClient()
 
 
+# TODO: make a setup_topic so that user does not manually have to setup the
+# topic
+
+
 def setup_subscription(subscriber):
     try:
         res = subscriber.create_subscription(subscription_name, TOPIC_NAME)
@@ -46,6 +50,7 @@ def process_pair(service):
     logger.info('{} and {} belong together'.format(front_msg_id, back_msg_id))
     target_dir = 'attachments/{}-{}'.format(front_msg_id, back_msg_id)
     makedirs(target_dir, exist_ok=True)
+    # download front and back attachment
     front_attachments = get_attachments(service, 'me', front_msg_id,
                                         target_dir)
     back_attachments = get_attachments(service, 'me', back_msg_id, target_dir)
@@ -55,7 +60,11 @@ def process_pair(service):
             front_attachments[0],
             back_attachments[0], 'example_pdfs/combined-{}-{}.pdf'.format(
                 front_msg_id, back_msg_id))
-    # download front and back attachment
+    # [ ] lokaal opslaan in een map (dropbox bijv.)
+    # [ ] mail die naar jezelf via dino.hensen+scan_duplex@gmail.com of geef de
+    #     mail een label DUPLEX_TARGET_LABEL
+    # [ ] upload scan naar dropbox via api
+    # [ ] upload scan naar gdrive via api
 
 
 def process_message(gmail_service, message):
@@ -81,32 +90,28 @@ def process_message(gmail_service, message):
         user_id='me',
         start_history_id=last_known_history_id)
 
-    pprint(changes)
+    logger.debug(changes)
     for change in changes:
-        if 'messagesAdded' in change:
-            messagesAdded = change['messagesAdded']
-            for item in messagesAdded:
-                message = item.get('message', {})
-                if SCAN_FRONT_LABEL in message.get('labelIds', []):
-                    print('FOUND FRONT SIDE PDF MESSAGE: {}'.format(
-                        message['id']))
-                    _mark_front(message['id'])
-                if SCAN_BACK_LABEL in message.get('labelIds', []):
-                    print('FOUND BACK SIDE SIDE PDF MESSAGE: {}'.format(
-                        message['id']))
-                    _mark_back(message['id'])
-        if back_pdf_message_ids and front_pdf_message_ids:
-            process_pair(gmail_service)
+        messagesAdded = change.get('messagesAdded', [])
+        for item in messagesAdded:
+            message = item.get('message', {})
+            if SCAN_FRONT_LABEL in message.get('labelIds', []):
+                logger.info('found front side pdf message: {}'.format(
+                    message['id']))
+                _mark_front(message['id'])
+            if SCAN_BACK_LABEL in message.get('labelIds', []):
+                logger.info('found back side pdf message: {}'.format(
+                    message['id']))
+                _mark_back(message['id'])
+
+    # if both lists contain an element, process them as a pair
+    if back_pdf_message_ids and front_pdf_message_ids:
+        process_pair(gmail_service)
     last_known_history_id = nextHistoryId
-    # [ ] lokaal opslaan in een map (dropbox bijv.)
-    # [ ] mail die naar jezelf via dino.hensen+scan_duplex@gmail.com of geef de mail een label DUPLEX_TARGET_LABEL
-    # [ ] upload scan naar dropbox via api
-    # [ ] upload scan naar gdrive via api
 
 
 def callback(gmail_service):
     def inner(message):
-        logger.info('START CALLBACK')
         try:
             process_message(gmail_service, message)
             message.ack()
@@ -114,7 +119,6 @@ def callback(gmail_service):
             message.nack()
             logger.error('error while processing message {}'.format(message))
             raise e
-        logger.info('END CALLBACK')
 
     return inner
 
@@ -122,9 +126,7 @@ def callback(gmail_service):
 def start_pulling(gmail_service, subscriber, start_history_id=1):
     global last_known_history_id
     last_known_history_id = int(start_history_id)
-    logger.info('before subscriber.subscribe()')
     future = subscriber.subscribe(subscription_name, callback(gmail_service))
-    logger.info('before future.result()')
     try:
         future.result()
     except KeyboardInterrupt:
