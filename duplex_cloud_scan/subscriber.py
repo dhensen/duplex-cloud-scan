@@ -127,6 +127,7 @@ def process_message(gmail_service, message):
 
 def callback(gmail_service):
     def inner(message):
+        # always ack :D
         message.ack()
         try:
             process_message(gmail_service, message)
@@ -134,8 +135,7 @@ def callback(gmail_service):
         except Exception as e:
             # message.nack()
             logger.error('error while processing message {}'.format(message))
-            raise e
-
+            logger.exception(e)
     return inner
 
 
