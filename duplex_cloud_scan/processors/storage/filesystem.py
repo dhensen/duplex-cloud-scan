@@ -13,8 +13,7 @@ class FilesystemProcessor(Processor):
 
     def process(self, abs_filepath: str, file, dt: datetime):
         """Save the given file somewhere on the filesystem"""
-        now = datetime.now()
-        new_filename = '{}.pdf'.format(now.strftime(self.filename_format))
+        new_filename = '{}.pdf'.format(dt.strftime(self.filename_format))
         new_filepath = join(self.target_dir, new_filename)
         makedirs(self.target_dir, exist_ok=True)
         copyfile(abs_filepath, new_filepath)

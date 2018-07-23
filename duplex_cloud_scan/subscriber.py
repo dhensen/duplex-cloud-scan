@@ -7,7 +7,8 @@ from google.cloud import pubsub
 from tempfile import mkstemp
 
 from duplex_cloud_scan.processors.storage.filesystem import FilesystemProcessor
-from duplex_cloud_scan.settings import FS_TARGET_DIR, FS_FILENAME_FORMAT
+from duplex_cloud_scan.processors.storage.gdrive import GdriveProcessor
+from duplex_cloud_scan.settings import FS_TARGET_DIR, FS_FILENAME_FORMAT, GDRIVE_FILENAME_FORMAT
 from .logger import get_logger
 from .services.gmail import get_attachments, gmail_history_list
 from .settings import PROJECT_ID, SCAN_BACK_LABEL, SCAN_FRONT_LABEL, TOPIC_NAME
@@ -51,8 +52,10 @@ def _mark_back(message_id):
 
 def get_processors():
     return [
-        FilesystemProcessor(FS_TARGET_DIR, FS_FILENAME_FORMAT)
+        FilesystemProcessor(FS_TARGET_DIR, FS_FILENAME_FORMAT),
+        GdriveProcessor(GDRIVE_FILENAME_FORMAT),
     ]
+
 
 def process_pair(service):
     now = datetime.now()
@@ -68,9 +71,7 @@ def process_pair(service):
 
     if len(front_attachments) == 1 and len(back_attachments) == 1:
         tempfile, tempfile_abspath = mkstemp()
-        combine_two_pdfs(
-            front_attachments[0],
-            back_attachments[0], tempfile)
+        combine_two_pdfs(front_attachments[0], back_attachments[0], tempfile)
         for processor in get_processors():
             processor.process(tempfile_abspath, tempfile, now)
         unlink(tempfile_abspath)
@@ -128,14 +129,15 @@ def process_message(gmail_service, message):
 def callback(gmail_service):
     def inner(message):
         # always ack :D
-        message.ack()
+        # message.ack()
         try:
             process_message(gmail_service, message)
-            # message.ack()
+            message.ack()
         except Exception as e:
-            # message.nack()
+            message.nack()
             logger.error('error while processing message {}'.format(message))
             logger.exception(e)
+
     return inner
 
 

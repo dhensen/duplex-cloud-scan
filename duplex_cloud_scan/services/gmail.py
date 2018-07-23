@@ -1,11 +1,12 @@
 import base64
 import os
 
-from apiclient import errors
+from apiclient import errors, http
 from apiclient.discovery import build
 from httplib2 import Http
 from oauth2client import client, file, tools
 
+from ..threadsafe import build_request
 from ..logger import get_logger
 from ..settings import TOPIC_NAME, WATCH_LABELS
 
@@ -33,8 +34,9 @@ def get_gmail_service(scopes=None):
         flow = client.flow_from_clientsecrets('client_secret.json', scopes)
         # dont runt this one when we are not interactive
         creds = tools.run_flow(flow, store)
-    gmail_service = build(
-        'gmail', 'v1', http=creds.authorize(Http()), cache_discovery=False)
+    # gmail_service = build(
+    #     'gmail', 'v1', http=creds.authorize(Http()), cache_discovery=False)
+    gmail_service = build('gmail', 'v1', requestBuilder=build_request(creds))
     return gmail_service
 
 
