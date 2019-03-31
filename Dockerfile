@@ -8,4 +8,4 @@ COPY service_account.json /app
 COPY client_secret.json /app
 ENV GOOGLE_APPLICATION_CREDENTIALS /app/service_account.json
 WORKDIR /app
-CMD [ "python3", "/app/duplex_cloud_scan/main.py" ]
+CMD [ "python3", "-m", "duplex_cloud_scan.main" ]

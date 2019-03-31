@@ -16,8 +16,8 @@ TOPIC_NAME = 'projects/api-project-175925620434/topics/cloud-duplex'
 
 # Filesystem processor
 FS_TARGET_DIR = 'combined_pdfs'
-FS_FILENAME_FORMAT = '%d-%m-%Y_%H.%I.%S'
+FS_FILENAME_FORMAT = '%d-%m-%Y_%H.%M.%S'
 
 # Gdrive processor
 GDRIVE_SCANS_FOLDER = 'Scans'
-GDRIVE_FILENAME_FORMAT = '%d-%m-%Y_%H.%I.%S'
+GDRIVE_FILENAME_FORMAT = '%d-%m-%Y_%H.%M.%S'
