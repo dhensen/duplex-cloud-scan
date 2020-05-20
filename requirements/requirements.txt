@@ -8,17 +8,17 @@ cachetools==2.1.0         # via google-auth
 certifi==2018.4.16        # via requests
 chardet==3.0.4            # via requests
 google-api-core[grpc]==1.2.1  # via google-cloud-pubsub
-google-api-python-client==1.7.4
+google-api-python-client==1.7.4  # via -r requirements.in
 google-auth-httplib2==0.0.3  # via google-api-python-client
 google-auth==1.5.0        # via google-api-core, google-api-python-client, google-auth-httplib2
-google-cloud-pubsub==0.35.4
+google-cloud-pubsub==0.35.4  # via -r requirements.in
 googleapis-common-protos[grpc]==1.5.3  # via google-api-core, grpc-google-iam-v1
 grpc-google-iam-v1==0.11.4  # via google-cloud-pubsub
 grpcio==1.13.0            # via google-api-core, googleapis-common-protos, grpc-google-iam-v1
-httplib2==0.11.3          # via google-api-python-client, google-auth-httplib2, oauth2client
+httplib2==0.18.0          # via google-api-python-client, google-auth-httplib2, oauth2client
 idna==2.7                 # via requests
-oauth2client==4.1.2
-pdfrw==0.4
+oauth2client==4.1.2       # via -r requirements.in
+pdfrw==0.4                # via -r requirements.in
 protobuf==3.6.0           # via google-api-core, googleapis-common-protos
 pyasn1-modules==0.2.2     # via google-auth, oauth2client
 pyasn1==0.4.3             # via oauth2client, pyasn1-modules, rsa
